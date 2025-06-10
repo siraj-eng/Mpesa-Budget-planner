@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>M-Smart Budget Lite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2 class="mb-4">M-Pesa Smart Budget</h2>
+    
+    <form action="/parse" method="post">
+        <div class="mb-3">
+            <textarea name="sms" class="form-control" rows="4" placeholder="Paste M-Pesa SMS here..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Parse & Save</button>
+    </form>
+
+    <hr>
+
+    <h4>Transactions</h4>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount (Ksh)</th>
+            <th>Recipient</th>
+            <th>Description</th>
+            <th>Balance</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for t in transactions %}
+            <tr>
+                <td>{{ t[5] }}</td>
+                <td>{{ t[2] }}</td>
+                <td>{{ t[1] }}</td>
+                <td>{{ t[3] }}</td>
+                <td>{{ t[4] }}</td>
+                <td>{{ t[6] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
