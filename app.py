@@ -83,8 +83,10 @@ def parse_mpesa_sms(sms):
     patterns = [
         # Received money
         r"received Ksh([\d,]+\.\d{2}) from (.+?) (\d{10}).+?on (\d{1,2}/\d{1,2}/\d{2}) at (\d{1,2}:\d{2} [APM]{2}).+?balance is Ksh([\d,]+\.\d{2})",
-        # Sent money
-        r"sent to (.+?) (\d{10}) Ksh([\d,]+\.\d{2}).+?on (\d{1,2}/\d{1,2}/\d{2}) at (\d{1,2}:\d{2} [APM]{2}).+?balance is Ksh([\d,]+\.\d{2})",
+        # Sent money to paybill
+        r"Confirmed\. Ksh([\d,]+\.\d{2}) sent to (.+?) (?:Paybill|paybill) (.+?) for account (\d+).+?on (\d{1,2}/\d{1,2}/\d{2}) at (\d{1,2}:\d{2} [APM]{2}).+?balance is Ksh([\d,]+\.\d{2})",
+        # Sent money to phone
+        r"Confirmed\. Ksh([\d,]+\.\d{2}) sent to (.+?) (\d{10}).+?on (\d{1,2}/\d{1,2}/\d{2}) at (\d{1,2}:\d{2} [APM]{2}).+?balance is Ksh([\d,]+\.\d{2})",
         # Paid to business
         r"paid to (.+?) (\d{10}) Ksh([\d,]+\.\d{2}).+?on (\d{1,2}/\d{1,2}/\d{2}) at (\d{1,2}:\d{2} [APM]{2}).+?balance is Ksh([\d,]+\.\d{2})"
     ]
@@ -101,12 +103,30 @@ def parse_mpesa_sms(sms):
                     'date': parse_date(f"{match.group(4)} {match.group(5)}"),
                     'balance': float(match.group(6).replace(',', ''))
                 }
-            elif "sent to" in sms.lower() or "paid to" in sms.lower():
+            elif "sent to" in sms.lower() and "paybill" in sms.lower():
+                return {
+                    'amount': float(match.group(1).replace(',', '')),
+                    'type': 'paid',
+                    'recipient': f"{match.group(2)} Paybill {match.group(3)}",
+                    'description': f"Payment to {match.group(2)} (Account: {match.group(4)})",
+                    'date': parse_date(f"{match.group(5)} {match.group(6)}"),
+                    'balance': float(match.group(7).replace(',', ''))
+                }
+            elif "sent to" in sms.lower():
+                return {
+                    'amount': float(match.group(1).replace(',', '')),
+                    'type': 'sent',
+                    'recipient': match.group(2),
+                    'description': 'M-PESA Sent',
+                    'date': parse_date(f"{match.group(4)} {match.group(5)}"),
+                    'balance': float(match.group(6).replace(',', ''))
+                }
+            elif "paid to" in sms.lower():
                 return {
                     'amount': float(match.group(3).replace(',', '')),
-                    'type': 'sent' if "sent to" in sms.lower() else 'paid',
+                    'type': 'paid',
                     'recipient': match.group(1),
-                    'description': 'M-PESA Sent' if "sent to" in sms.lower() else 'M-PESA Payment',
+                    'description': 'M-PESA Payment',
                     'date': parse_date(f"{match.group(4)} {match.group(5)}"),
                     'balance': float(match.group(6).replace(',', ''))
                 }
