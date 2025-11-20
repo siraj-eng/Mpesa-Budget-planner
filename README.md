@@ -9,8 +9,7 @@ Track your M-Pesa spending and manage your money better.
 ✅ View spending charts & reports  
 
 ### How to Use  
-1. Allow SMS access (for auto-import) or upload a statement.  
-2. Set your budget limits & categories.  
+1. Allow SMS access (for auto-import) or upload a statement.  2. Set your budget limits & categories.  
 3. Check the dashboard for insights.  
 
 ### Privacy  
